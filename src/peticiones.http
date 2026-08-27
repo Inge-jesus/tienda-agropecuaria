@@ -1,0 +1,13 @@
+###
+POST http://localhost:8090/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Ivermectina 1%",
+  "categoria": "Sanidad",
+  "tipoBovino": "Bovinos General",
+  "stock": 25,
+  "precio": 45000.0
+}
+### Buscar producto por ID
+GET http://localhost:8090/api/productos/1
