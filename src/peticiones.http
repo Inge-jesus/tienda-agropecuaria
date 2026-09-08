@@ -3,11 +3,22 @@ POST http://localhost:8090/api/productos
 Content-Type: application/json
 
 {
-  "nombre": "Ivermectina 1%",
-  "categoria": "Sanidad",
-  "tipoBovino": "Bovinos General",
-  "stock": 25,
-  "precio": 45000.0
+  "nombre": "Alimento para Ganado 40kg",
+  "categoria": "Nutrición Animal",
+  "precio": 85000.00
 }
 ### Buscar producto por ID
 GET http://localhost:8090/api/productos/1
+
+
+### Consultar todos los productos
+GET http://localhost:8090/api/productos
+
+
+### Actualizar un producto existente (por ejemplo, el ID 1)
+PUT http://localhost:8090/api/productos/1
+Content-Type: application/json
+
+### Eliminar un producto por ID (por ejemplo, el ID 1)
+DELETE http://localhost:8090/api/productos/1
+

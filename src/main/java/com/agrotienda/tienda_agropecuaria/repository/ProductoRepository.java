@@ -7,4 +7,6 @@ import java.util.List;
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
     // Para la barra de busqueda de la tienda (ej: buscar "ivermectina")
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
+    List<Producto> findByCategoria(String categoria);
 }
+

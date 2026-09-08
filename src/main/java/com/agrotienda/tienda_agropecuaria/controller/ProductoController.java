@@ -39,4 +39,38 @@ public class ProductoController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // Actualizar producto
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto productoDetalles) {
+        Optional<Producto> productoOpt = productoRepository.findById(id);
+        if (productoOpt.isPresent()) {
+            Producto producto = productoOpt.get();
+            producto.setNombre(productoDetalles.getNombre());
+            producto.setCategoria(productoDetalles.getCategoria());
+            producto.setPrecio(productoDetalles.getPrecio());
+            producto.setStock(productoDetalles.getStock());
+            producto.setTipoBovino(productoDetalles.getTipoBovino());
+            
+            Producto productoActualizado = productoRepository.save(producto);
+            return ResponseEntity.ok(productoActualizado);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @GetMapping("/buscar")
+public List<Producto> buscarPorCategoria(@RequestParam String categoria) {
+    return productoRepository.findByCategoria(categoria);
+}
+// Eliminar producto por ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
+        if (productoRepository.existsById(id)) {
+            productoRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }
