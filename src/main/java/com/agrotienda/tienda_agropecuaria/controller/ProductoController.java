@@ -1,76 +1,61 @@
 package com.agrotienda.tienda_agropecuaria.controller;
 
-import com.agrotienda.tienda_agropecuaria.dto.ProductoDto;
 import com.agrotienda.tienda_agropecuaria.model.Producto;
 import com.agrotienda.tienda_agropecuaria.repository.ProductoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.agrotienda.tienda_agropecuaria.service.CotizacionService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
 
-    @Autowired
-    private ProductoRepository productoRepository;
+    private final ProductoRepository productoRepository;
+    private final CotizacionService cotizacionService;
+    private final MeterRegistry meterRegistry;
 
-    // Listar todos
+    public ProductoController(ProductoRepository productoRepository, 
+                              CotizacionService cotizacionService, 
+                              MeterRegistry meterRegistry) {
+        this.productoRepository = productoRepository;
+        this.cotizacionService = cotizacionService;
+        this.meterRegistry = meterRegistry;
+    }
+
+    // 1. Obtener todos los productos e incrementar la métrica
     @GetMapping
-    public List<Producto> listarProductos() {
+    public List<Producto> obtenerTodos() {
+        meterRegistry.counter("agrotienda.productos.consultas.total").increment();
         return productoRepository.findAll();
     }
 
-    // Guardar producto
+    // 2. Crear un nuevo producto
     @PostMapping
-    public Producto guardarProducto(@RequestBody Producto producto) {
-        return productoRepository.save(producto);
+    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
+        Producto nuevoProducto = productoRepository.save(producto);
+        return ResponseEntity.ok(nuevoProducto);
     }
 
-    // Buscar producto por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
-        Optional<Producto> producto = productoRepository.findById(id);
-        if (producto.isPresent()) {
-            return ResponseEntity.ok(producto.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+    // 3. Endpoint para cotizar un producto en USD usando el servicio
+    @GetMapping("/{id}/precio-usd")
+    public ResponseEntity<Map<String, Object>> obtenerPrecioUSD(@PathVariable Long id) {
+        return productoRepository.findById(id).map(producto -> {
+            double tasa = cotizacionService.obtenerTasaUsdCop();
+            double precioUSD = producto.getPrecio() / tasa;
 
-    // Actualizar producto
-    @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto productoDetalles) {
-        Optional<Producto> productoOpt = productoRepository.findById(id);
-        if (productoOpt.isPresent()) {
-            Producto producto = productoOpt.get();
-            producto.setNombre(productoDetalles.getNombre());
-            producto.setCategoria(productoDetalles.getCategoria());
-            producto.setPrecio(productoDetalles.getPrecio());
-            producto.setStock(productoDetalles.getStock());
-            producto.setTipoBovino(productoDetalles.getTipoBovino());
-            
-            Producto productoActualizado = productoRepository.save(producto);
-            return ResponseEntity.ok(productoActualizado);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    @GetMapping("/buscar")
-public List<Producto> buscarPorCategoria(@RequestParam String categoria) {
-    return productoRepository.findByCategoria(categoria);
-}
-// Eliminar producto por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
-        if (productoRepository.existsById(id)) {
-            productoRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("id", producto.getId());
+            respuesta.put("producto", producto.getNombre());
+            respuesta.put("precioCOP", producto.getPrecio());
+            respuesta.put("precioUSD", precioUSD);
+            respuesta.put("tasaUsdCop", tasa);
 
+            return ResponseEntity.ok(respuesta);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

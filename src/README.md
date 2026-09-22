@@ -1,24 +1,18 @@
-# Tienda Agropecuaria API REST
+# Tienda Agropecuaria - API REST con Persistencia y Observabilidad
 
-## Descripción breve de la API
-API REST desarrollada en Spring Boot para la gestión de inventario y productos de una tienda agropecuaria, permitiendo realizar operaciones CRUD completas y consultas especializadas sobre los artículos disponibles para el sector agropecuario.
+## Descripción del Proyecto
+Evolución de la API REST para la gestión de productos e insumos agropecuarios. La solución incorpora persistencia relacional con MySQL, integración con servicios API externos para la conversión de divisas en tiempo real, y observabilidad mediante Spring Boot Actuator y Prometheus.
 
-## Contexto seleccionado
-Comercio y gestión de inventario para una tienda agropecuaria orientada a insumos, herramientas y productos del campo.
+## Tecnologías Utilizadas
+- **Java 17 / Spring Boot 3.x**
+- **Spring Data JPA & Hibernate**
+- **MySQL Database 8.x**
+- **Spring Boot Actuator & Micrometer**
+- **Prometheus Metric Exporter**
+- **RestClient**
 
-## Integrantes
-* Jesús David Pérez Fernández
-
-## Tecnologías utilizadas
-* **Java 17+**
-* **Spring Boot** (Spring Web, Spring Data JPA)
-* **Hibernate** (Gestión ORM)
-* **H2 Database** (Base de datos en memoria para persistencia)
-* **Maven** (Gestor de dependencias)
-
-## Instrucciones básicas para ejecutar el proyecto
-1. Clona este repositorio o descarga el código fuente.
-2. Abre el proyecto en tu entorno de desarrollo favorito (IntelliJ IDEA, Eclipse o VS Code).
-3. Ejecuta la aplicación mediante Maven utilizando el siguiente comando en la terminal:
-   ```bash
-   mvn spring-boot:run
+## Configuración de MySQL
+1. Crear la base de datos en MySQL local o remoto:
+   ```sql
+   CREATE DATABASE tienda_agropecuaria_db;
+   
